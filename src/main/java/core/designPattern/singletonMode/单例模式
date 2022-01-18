@@ -1,0 +1,48 @@
+一、单例模式介绍：
+    采取一定的方法保证真个系统中，对某个类只能存在一个对象的实例，并且该类只提供一个取得对象实例的方法（静态方法）
+    比如Hibernate的SessionFactory，它充当数据存储代理，并负责创建Session对象，SessionFactory并不是轻量级的
+    所以，一个项目通常只需要一个SessionFactory对象就可以了，这时候就用到了单例模式。
+
+
+单例模式注意事项和说明：
+
+    单例模式保证系统内存中只存在一个对象，节省系统资源，对于一些需要频繁创建销毁的对象
+    使用单例模式可以提高系统性能
+    当想实例化一个单例类的时候，必须使用相对应的获取对象的方法，而不是去使用New.
+
+二、单例模式有两种方式：饿汉式 & 懒汉式
+
+  饿汉式
+    饿汉式说明：自己理解的意思，即虚拟机加载类的过程中，不管你用没用到这个对象，都会给你生成一个对象！
+    就相当于一个非常饿的人，直接吃线程的，到最后可能也没吃到，造成了资源的浪费
+
+    //构造私有化
+    private Sing () {
+
+    }
+
+    内部创建对象实例
+    private final static Sing instance = new Sing();
+
+    //提供一个公共的静态方法，调用方法可以获得此对象
+    public static Sing getInstance() {
+        return instance;
+    }
+
+  懒汉式
+    懒汉式的写法会在需要用到对象的时候创建一个对象，好处是避免资源的浪费！
+    懒汉式的写法很多，参考Singleton mode3
+
+
+三、单例模式无论是饿汉式还是懒汉式，创建对象的步骤如下：
+  1.创建一个私有化的空参构造器
+    private Class(){}
+  2.创建一个实例化的对象
+    饿汉式写法
+    private final static Class class_name = new Class()
+    懒汉式写法
+    private static Class class_name;
+  3.提供一个获取对象的方法
+    public static getInstance(){}
+
+

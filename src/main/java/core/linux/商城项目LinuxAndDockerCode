@@ -1,0 +1,76 @@
+
+
+
+//下载镜像
+sudo docker pull mysql:5.7
+
+//创建Docker命令
+docker run -p 3306:3306 --name mysql2 \ -p：端口映射 --name：容器起个名
+-v /mydata/mysql/log:/var/log/mysql \   -v 目录挂载  linux : 容器  (容器的目录对应linux的目录) 日志挂载
+-v /mydata/mysql/data:/var/lib/mysql \ 配置文件夹挂载
+-v /mydata/mysql/conf:/etc/mysql \     配置文件夹挂载
+-e MYSQL_ROOT_PASSWORD=root \          初始化密码
+-d mysql:5.7  根据哪个镜像创建容器
+
+//创建docKer命令
+docker run -p 6379:6379 --name redis -v /mydata/redis/data:/data \
+-v /mydata/redis/conf/redis.conf:/etc/redis/redis.conf \
+-d redis redis-server /etc/redis/redis.conf
+   刚创建的redis没有持久化，重启数据就没了
+   如何开启？
+    1.进入挂载的目录conf文件夹下的redis.conf
+    2.vi redis.conf
+    3.按 i  然后 appendonly yes 开启Aof持久化
+//连接redis
+docker exec -it redis redis-cli  exit 退出
+sudo docker update redis --resteart=alway  虚拟机启动，redis也会启动  redis.mysql
+
+//进入挂载目录修改字符配置
+vi /mydata/mysql/conf/my.cnf
+
+//字符配置
+[client]
+default-character-set=utf8
+
+[mysql]
+default-character-set=utf8
+
+[mysqld]
+init_connect='SET collation_connection = utf8_unicode_ci'
+init_connect='SET NAMES utf8'
+character-set-server=utf8
+collation-server=utf8_unicode_ci
+skip-character-set-client-handshake
+
+    注意：mysql启动不了，就是修改的文件有错误，需要在Linux中把挂在的文件夹删除，重新创建
+         端口映射：把Linux的端口映射到Mysql容器的端口  3306:3306 访问Linux3306端口相当于访问Mysql容器的3306端口。
+         目录挂载：相当于把Mysql容器里的文件放在了Linux虚拟机下，容器文件路径映射到Linux外部的地方。
+
+         解决方法：
+         cd 到 /var/lib/docker/containers/目录下，这个目录就是docker容器的目录。
+         对于每一个容器，都有一个唯一的容器ID，我的是c9e55df1b121，然后我就可以在containers目录下找到以这个ID开头的文件夹：c9e55df1b121377fea6fc1b1cd6e79443d1b97aab50dc013dfa27b1002e76e14
+         进入这个目录，就可以看到有一个config.v2.json文件，这个文件就是该容器的配置文件。
+         打开这个文件就会看到以json形式存储的配置信息，然后在其中找到：MYSQL_ROOT_PASSWORD，这个密码应该就是老密码了。将这个老密码修改为正确的密码，保存即可。
+         注意：保存时，一定要确保docker没有在运行，即使用systemctl stop docker命令将docker关闭，否则保存后，docker仍然会依照老密码启动容器，容器仍然不能启动。
+
+
+
+linux命令
+    rm -rf 目录名字 删除命令
+
+docker 命令
+    cat xx.cnf  查看文件
+    systemctl restart docker 重启docker
+    docker start mysql 启动mysql服务
+    docker restart redis ..重启redis
+    docker ps -a 查看所有容器
+    docker ps 查看运行的容器
+    docker images 查看所有镜像 su root 进入root用户
+    docker exec -it mysql(容器名称ORID) /bin/bash 进入容器
+
+    //连接redis
+    docker exec -it redis redis-cli
+    exit 退出
+    //启动Linux，redis和mysql也自动启动
+    sudo docker update redis --resteart=alway  虚拟机启动，redis也会启动  redis.mysql
+
